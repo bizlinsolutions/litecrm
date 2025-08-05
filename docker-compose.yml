@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: litecrm-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: litecrm
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+
+  litecrm:
+    build: .
+    container_name: litecrm-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/litecrm?authSource=admin
+      - JWT_SECRET=production-jwt-secret-change-this
+      - ADMIN_EMAIL=admin@litecrm.com
+      - ADMIN_PASSWORD=admin123
+    depends_on:
+      - mongodb
+    volumes:
+      - ./.env.local:/app/.env.local:ro
+
+volumes:
+  mongodb_data:
