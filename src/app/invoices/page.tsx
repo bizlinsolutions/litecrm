@@ -393,147 +393,146 @@ export default function InvoicesPage() {
                                             value={newInvoice.customerId}
                                             onChange={(value) => setNewInvoice({ ...newInvoice, customerId: value as string })}
                                             placeholder="Select Customer"
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">Due Date *</label>
-                                                <input
-                                                    type="date"
-                                                    required
-                                                    value={newInvoice.dueDate}
-                                                    onChange={(e) => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Invoice Items</label>
-                                            {newInvoice.items.map((item, index) => (
-                                                <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Description"
-                                                        value={item.description}
-                                                        onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
-                                                        className="px-3 py-2 border border-gray-300 rounded-md"
-                                                    />
-                                                    <input
-                                                        type="number"
-                                                        placeholder="Quantity"
-                                                        min="1"
-                                                        value={item.quantity}
-                                                        onChange={(e) => updateInvoiceItem(index, 'quantity', parseInt(e.target.value) || 1)}
-                                                        className="px-3 py-2 border border-gray-300 rounded-md"
-                                                    />
-                                                    <input
-                                                        type="number"
-                                                        placeholder="Unit Price"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={item.unitPrice}
-                                                        onChange={(e) => updateInvoiceItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                                                        className="px-3 py-2 border border-gray-300 rounded-md"
-                                                    />
-                                                    <div className="flex items-center space-x-2">
-                                                        <span className="text-sm text-gray-600">
-                                                            ${(item.quantity * item.unitPrice).toFixed(2)}
-                                                        </span>
-                                                        {newInvoice.items.length > 1 && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeInvoiceItem(index)}
-                                                                className="text-red-600 hover:text-red-800"
-                                                            >
-                                                                Remove
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <button
-                                                type="button"
-                                                onClick={addInvoiceItem}
-                                                className="text-blue-600 hover:text-blue-800 text-sm"
-                                            >
-                                                + Add Item
-                                            </button>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">Tax Rate (%)</label>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    max="100"
-                                                    step="0.01"
-                                                    value={newInvoice.taxRate}
-                                                    onChange={(e) => setNewInvoice({ ...newInvoice, taxRate: parseFloat(e.target.value) || 0 })}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">Notes</label>
-                                                <input
-                                                    type="text"
-                                                    value={newInvoice.notes}
-                                                    onChange={(e) => setNewInvoice({ ...newInvoice, notes: e.target.value })}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Totals Preview */}
-                                        <div className="border-t pt-4">
-                                            <div className="flex justify-end">
-                                                <div className="w-64">
-                                                    {(() => {
-                                                        const subtotal = newInvoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-                                                        const taxAmount = subtotal * (newInvoice.taxRate / 100);
-                                                        const total = subtotal + taxAmount;
-
-                                                        return (
-                                                            <div className="space-y-2 text-sm">
-                                                                <div className="flex justify-between">
-                                                                    <span>Subtotal:</span>
-                                                                    <span>${subtotal.toFixed(2)}</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>Tax ({newInvoice.taxRate}%):</span>
-                                                                    <span>${taxAmount.toFixed(2)}</span>
-                                                                </div>
-                                                                <div className="flex justify-between font-bold text-lg border-t pt-2">
-                                                                    <span>Total:</span>
-                                                                    <span>${total.toFixed(2)}</span>
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })()}
-                                                </div>
-                                            </div>
-                                        </div>
+                                            className="mt-1"
+                                        />
                                     </div>
-
-                                    <div className="flex justify-end space-x-3 mt-6">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowCreateForm(false)}
-                                            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
-                                        >
-                                            <FiDollarSign className="h-4 w-4" />
-                                            Create Invoice
-                                        </button>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Due Date *</label>
+                                        <input
+                                            type="date"
+                                            required
+                                            value={newInvoice.dueDate}
+                                            onChange={(e) => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                        />
                                     </div>
                                 </div>
-                            </form>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Invoice Items</label>
+                                    {newInvoice.items.map((item, index) => (
+                                        <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Description"
+                                                value={item.description}
+                                                onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
+                                                className="px-3 py-2 border border-gray-300 rounded-md"
+                                            />
+                                            <input
+                                                type="number"
+                                                placeholder="Quantity"
+                                                min="1"
+                                                value={item.quantity}
+                                                onChange={(e) => updateInvoiceItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                                                className="px-3 py-2 border border-gray-300 rounded-md"
+                                            />
+                                            <input
+                                                type="number"
+                                                placeholder="Unit Price"
+                                                min="0"
+                                                step="0.01"
+                                                value={item.unitPrice}
+                                                onChange={(e) => updateInvoiceItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                                className="px-3 py-2 border border-gray-300 rounded-md"
+                                            />
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm text-gray-600">
+                                                    ${(item.quantity * item.unitPrice).toFixed(2)}
+                                                </span>
+                                                {newInvoice.items.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeInvoiceItem(index)}
+                                                        className="text-red-600 hover:text-red-800"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={addInvoiceItem}
+                                        className="text-blue-600 hover:text-blue-800 text-sm"
+                                    >
+                                        + Add Item
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Tax Rate (%)</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            step="0.01"
+                                            value={newInvoice.taxRate}
+                                            onChange={(e) => setNewInvoice({ ...newInvoice, taxRate: parseFloat(e.target.value) || 0 })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Notes</label>
+                                        <input
+                                            type="text"
+                                            value={newInvoice.notes}
+                                            onChange={(e) => setNewInvoice({ ...newInvoice, notes: e.target.value })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Totals Preview */}
+                                <div className="border-t pt-4">
+                                    <div className="flex justify-end">
+                                        <div className="w-64">
+                                            {(() => {
+                                                const subtotal = newInvoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+                                                const taxAmount = subtotal * (newInvoice.taxRate / 100);
+                                                const total = subtotal + taxAmount;
+
+                                                return (
+                                                    <div className="space-y-2 text-sm">
+                                                        <div className="flex justify-between">
+                                                            <span>Subtotal:</span>
+                                                            <span>${subtotal.toFixed(2)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                            <span>Tax ({newInvoice.taxRate}%):</span>
+                                                            <span>${taxAmount.toFixed(2)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between font-bold text-lg border-t pt-2">
+                                                            <span>Total:</span>
+                                                            <span>${total.toFixed(2)}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCreateForm(false)}
+                                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+                                >
+                                    <FiDollarSign className="h-4 w-4" />
+                                    Create Invoice
+                                </button>
+                            </div>
+                        </form>
                     </Modal>
 
                     {/* Invoices Table */}

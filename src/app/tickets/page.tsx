@@ -388,74 +388,73 @@ export default function TicketsPage() {
                                             value: customer._id,
                                             label: customer.name,
                                             subtitle: customer.email
-                                                }))}
-                                                value={newTicket.customerId}
-                                                onChange={(value) => setNewTicket({ ...newTicket, customerId: value as string })}
-                                                placeholder="Select Customer"
-                                                className="mt-1"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Title *</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                value={newTicket.title}
-                                                onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Description *</label>
-                                            <textarea
-                                                required
-                                                value={newTicket.description}
-                                                onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
-                                                rows={4}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Priority</label>
-                                            <select
-                                                value={newTicket.priority}
-                                                onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value as any })}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                            >
-                                                <option value="low">Low</option>
-                                                <option value="medium">Medium</option>
-                                                <option value="high">High</option>
-                                                <option value="urgent">Urgent</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Category</label>
-                                            <input
-                                                type="text"
-                                                value={newTicket.category}
-                                                onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value })}
-                                                placeholder="e.g., Bug, Feature Request, Support"
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-end space-x-3 mt-6">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowCreateForm(false)}
-                                            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                        >
-                                            Create Ticket
-                                        </button>
-                                    </div>
+                                        }))}
+                                        value={newTicket.customerId}
+                                        onChange={(value) => setNewTicket({ ...newTicket, customerId: value as string })}
+                                        placeholder="Select Customer"
+                                        className="mt-1"
+                                    />
                                 </div>
-                            </form>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Title *</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={newTicket.title}
+                                        onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Description *</label>
+                                    <textarea
+                                        required
+                                        value={newTicket.description}
+                                        onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                                        rows={4}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Priority</label>
+                                    <select
+                                        value={newTicket.priority}
+                                        onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value as any })}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    >
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                                    <input
+                                        type="text"
+                                        value={newTicket.category}
+                                        onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value })}
+                                        placeholder="e.g., Bug, Feature Request, Support"
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCreateForm(false)}
+                                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Create Ticket
+                                </button>
+                            </div>
+                        </form>
                     </Modal>
 
                     {/* Tickets Table */}

@@ -132,32 +132,6 @@ export default function LoginPage() {
                             </button>
                         </div>
                     </form>
-
-                    <div className="mt-6 border-t border-gray-200 pt-6">
-                        <div className="text-center">
-                            <h3 className="text-sm font-medium text-gray-700 mb-4">Demo Credentials</h3>
-                            <div className="space-y-2 text-sm text-gray-600">
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <strong>Admin:</strong> admin@litecrm.com / admin123
-                                </div>
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <strong>Manager:</strong> manager@litecrm.com / manager123
-                                </div>
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <strong>User:</strong> user@litecrm.com / user123
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="text-center">
-                    <p className="text-sm text-gray-600">
-                        Don't have an account?{' '}
-                        <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
-                            Sign up here
-                        </Link>
-                    </p>
                 </div>
             </div>
         </div>

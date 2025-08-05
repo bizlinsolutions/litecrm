@@ -388,110 +388,109 @@ export default function TasksPage() {
                                     <input
                                         type="text"
                                         required
-                                                value={newTask.title}
-                                                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Description</label>
-                                            <textarea
-                                                value={newTask.description}
-                                                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                                                rows={3}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">Customer *</label>
-                                                <SearchableSelect
-                                                    options={customers.map(customer => ({
-                                                        value: customer._id,
-                                                        label: customer.name,
-                                                        subtitle: customer.email
-                                                    }))}
-                                                    value={newTask.customerId}
-                                                    onChange={(value) => setNewTask({ ...newTask, customerId: value as string })}
-                                                    placeholder="Select Customer"
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">Priority</label>
-                                                <select
-                                                    value={newTask.priority}
-                                                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                >
-                                                    <option value="low">Low</option>
-                                                    <option value="medium">Medium</option>
-                                                    <option value="high">High</option>
-                                                    <option value="urgent">Urgent</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Due Date</label>
-                                            <input
-                                                type="date"
-                                                value={newTask.dueDate}
-                                                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Related Invoices (Optional)</label>
-                                            <SearchableSelect
-                                                options={invoices
-                                                    .filter(invoice => invoice.customerId === newTask.customerId)
-                                                    .map(invoice => ({
-                                                        value: invoice._id,
-                                                        label: invoice.invoiceNumber,
-                                                        subtitle: `$${invoice.total.toFixed(2)} - ${invoice.status}`
-                                                    }))}
-                                                value={newTask.relatedInvoices}
-                                                onChange={(value) => setNewTask({ ...newTask, relatedInvoices: value as string[] })}
-                                                placeholder="Select Related Invoices"
-                                                multiple={true}
-                                                className="mt-1"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Related Tickets (Optional)</label>
-                                            <SearchableSelect
-                                                options={tickets
-                                                    .filter(ticket => ticket.customerId === newTask.customerId)
-                                                    .map(ticket => ({
-                                                        value: ticket._id,
-                                                        label: `${ticket.ticketNumber} - ${ticket.title}`,
-                                                        subtitle: `${ticket.status} - ${ticket.priority}`
-                                                    }))}
-                                                value={newTask.relatedTickets}
-                                                onChange={(value) => setNewTask({ ...newTask, relatedTickets: value as string[] })}
-                                                placeholder="Select Related Tickets"
-                                                multiple={true}
-                                                className="mt-1"
-                                            />
-                                        </div>
+                                        value={newTask.title}
+                                        onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                                    <textarea
+                                        value={newTask.description}
+                                        onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                        rows={3}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Customer *</label>
+                                        <SearchableSelect
+                                            options={customers.map(customer => ({
+                                                value: customer._id,
+                                                label: customer.name,
+                                                subtitle: customer.email
+                                            }))}
+                                            value={newTask.customerId}
+                                            onChange={(value) => setNewTask({ ...newTask, customerId: value as string })}
+                                            placeholder="Select Customer"
+                                            className="mt-1"
+                                        />
                                     </div>
-                                    <div className="flex justify-end space-x-3 mt-6">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowCreateForm(false)}
-                                            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Priority</label>
+                                        <select
+                                            value={newTask.priority}
+                                            onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                                         >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                        >
-                                            Create Task
-                                        </button>
+                                            <option value="low">Low</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="high">High</option>
+                                            <option value="urgent">Urgent</option>
+                                        </select>
                                     </div>
                                 </div>
-                            </form>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Due Date</label>
+                                    <input
+                                        type="date"
+                                        value={newTask.dueDate}
+                                        onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Related Invoices (Optional)</label>
+                                    <SearchableSelect
+                                        options={invoices
+                                            .filter(invoice => invoice.customerId === newTask.customerId)
+                                            .map(invoice => ({
+                                                value: invoice._id,
+                                                label: invoice.invoiceNumber,
+                                                subtitle: `$${invoice.total.toFixed(2)} - ${invoice.status}`
+                                            }))}
+                                        value={newTask.relatedInvoices}
+                                        onChange={(value) => setNewTask({ ...newTask, relatedInvoices: value as string[] })}
+                                        placeholder="Select Related Invoices"
+                                        multiple={true}
+                                        className="mt-1"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Related Tickets (Optional)</label>
+                                    <SearchableSelect
+                                        options={tickets
+                                            .filter(ticket => ticket.customerId === newTask.customerId)
+                                            .map(ticket => ({
+                                                value: ticket._id,
+                                                label: `${ticket.ticketNumber} - ${ticket.title}`,
+                                                subtitle: `${ticket.status} - ${ticket.priority}`
+                                            }))}
+                                        value={newTask.relatedTickets}
+                                        onChange={(value) => setNewTask({ ...newTask, relatedTickets: value as string[] })}
+                                        placeholder="Select Related Tickets"
+                                        multiple={true}
+                                        className="mt-1"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCreateForm(false)}
+                                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Create Task
+                                </button>
+                            </div>
+                        </form>
                     </Modal>
 
                     {/* Tasks Table */}

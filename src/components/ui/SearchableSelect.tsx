@@ -38,11 +38,11 @@ export default function SearchableSelect({
     const selectedValues = Array.isArray(value) ? value : value ? [value] : [];
     const selectedOptions = options.filter(option => selectedValues.includes(option.value));
 
-    const filteredOptions = searchable 
-        ? options.filter(option => 
+    const filteredOptions = searchable
+        ? options.filter(option =>
             option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (option.subtitle && option.subtitle.toLowerCase().includes(searchTerm.toLowerCase()))
-          )
+        )
         : options;
 
     useEffect(() => {
@@ -62,7 +62,7 @@ export default function SearchableSelect({
 
         document.addEventListener('mousedown', handleClickOutside);
         document.addEventListener('keydown', handleEscapeKey);
-        
+
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscapeKey);
@@ -133,8 +133,8 @@ export default function SearchableSelect({
                         </span>
                     )}
                 </div>
-                <FiChevronDown 
-                    className={`h-5 w-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+                <FiChevronDown
+                    className={`h-5 w-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                 />
             </div>
 
@@ -156,7 +156,7 @@ export default function SearchableSelect({
                             </div>
                         </div>
                     )}
-                    
+
                     <div className="max-h-48 overflow-auto">
                         {filteredOptions.length === 0 ? (
                             <div className="px-3 py-2 text-gray-600 text-sm">No options found</div>

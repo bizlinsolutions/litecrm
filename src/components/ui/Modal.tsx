@@ -12,13 +12,13 @@ interface ModalProps {
     showCloseButton?: boolean;
 }
 
-export default function Modal({ 
-    isOpen, 
-    onClose, 
-    title, 
-    children, 
+export default function Modal({
+    isOpen,
+    onClose,
+    title,
+    children,
     size = 'lg',
-    showCloseButton = true 
+    showCloseButton = true
 }: ModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +61,7 @@ export default function Modal({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-            <div 
+            <div
                 ref={modalRef}
                 className={`bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} m-4 max-h-screen overflow-y-auto`}
             >
