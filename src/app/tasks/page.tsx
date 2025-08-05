@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import SearchableSelect from '@/components/ui/SearchableSelect';
+import Modal from '@/components/ui/Modal';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiClock, FiFlag, FiCheckSquare } from 'react-icons/fi';
 
 interface Task {
     _id: string;
@@ -28,6 +31,8 @@ interface Invoice {
     _id: string;
     invoiceNumber: string;
     customerId: string;
+    total: number;
+    status: string;
 }
 
 interface Ticket {
@@ -35,6 +40,8 @@ interface Ticket {
     ticketNumber: string;
     title: string;
     customerId: string;
+    status: string;
+    priority: string;
 }
 
 export default function TasksPage() {
@@ -307,8 +314,9 @@ export default function TasksPage() {
                         <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
                         <button
                             onClick={() => setShowCreateForm(true)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
                         >
+                            <FiPlus className="h-4 w-4" />
                             Add Task
                         </button>
                     </div>
@@ -317,13 +325,16 @@ export default function TasksPage() {
                     <div className="bg-white p-4 rounded-lg shadow mb-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <input
-                                    type="text"
-                                    placeholder="Search tasks..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                />
+                                <div className="relative">
+                                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search tasks..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <select
@@ -361,17 +372,22 @@ export default function TasksPage() {
                     )}
 
                     {/* Create Form Modal */}
-                    {showCreateForm && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-                            <div className="bg-white rounded-lg p-6 w-full max-w-2xl m-4 max-h-screen overflow-y-auto">
-                                <h2 className="text-xl font-bold mb-4">Add New Task</h2>
-                                <form onSubmit={createTask}>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Title *</label>
-                                            <input
-                                                type="text"
-                                                required
+                    <Modal
+                        isOpen={showCreateForm}
+                        onClose={() => setShowCreateForm(false)}
+                        title="Add New Task"
+                        size="2xl"
+                    >
+                        <form onSubmit={createTask}>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">
+                                        <FiCheckSquare className="inline h-4 w-4 mr-1" />
+                                        Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
                                                 value={newTask.title}
                                                 onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -389,19 +405,17 @@ export default function TasksPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Customer *</label>
-                                                <select
-                                                    required
+                                                <SearchableSelect
+                                                    options={customers.map(customer => ({
+                                                        value: customer._id,
+                                                        label: customer.name,
+                                                        subtitle: customer.email
+                                                    }))}
                                                     value={newTask.customerId}
-                                                    onChange={(e) => setNewTask({ ...newTask, customerId: e.target.value })}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                >
-                                                    <option value="">Select Customer</option>
-                                                    {customers.map(customer => (
-                                                        <option key={customer._id} value={customer._id}>
-                                                            {customer.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                                    onChange={(value) => setNewTask({ ...newTask, customerId: value as string })}
+                                                    placeholder="Select Customer"
+                                                    className="mt-1"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Priority</label>
@@ -428,47 +442,37 @@ export default function TasksPage() {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">Related Invoices (Optional)</label>
-                                            <select
-                                                multiple
-                                                value={newTask.relatedInvoices}
-                                                onChange={(e) => {
-                                                    const selected = Array.from(e.target.selectedOptions, option => option.value);
-                                                    setNewTask({ ...newTask, relatedInvoices: selected });
-                                                }}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                size={3}
-                                            >
-                                                {invoices
+                                            <SearchableSelect
+                                                options={invoices
                                                     .filter(invoice => invoice.customerId === newTask.customerId)
-                                                    .map(invoice => (
-                                                        <option key={invoice._id} value={invoice._id}>
-                                                            {invoice.invoiceNumber}
-                                                        </option>
-                                                    ))}
-                                            </select>
-                                            <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+                                                    .map(invoice => ({
+                                                        value: invoice._id,
+                                                        label: invoice.invoiceNumber,
+                                                        subtitle: `$${invoice.total.toFixed(2)} - ${invoice.status}`
+                                                    }))}
+                                                value={newTask.relatedInvoices}
+                                                onChange={(value) => setNewTask({ ...newTask, relatedInvoices: value as string[] })}
+                                                placeholder="Select Related Invoices"
+                                                multiple={true}
+                                                className="mt-1"
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">Related Tickets (Optional)</label>
-                                            <select
-                                                multiple
-                                                value={newTask.relatedTickets}
-                                                onChange={(e) => {
-                                                    const selected = Array.from(e.target.selectedOptions, option => option.value);
-                                                    setNewTask({ ...newTask, relatedTickets: selected });
-                                                }}
-                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                size={3}
-                                            >
-                                                {tickets
+                                            <SearchableSelect
+                                                options={tickets
                                                     .filter(ticket => ticket.customerId === newTask.customerId)
-                                                    .map(ticket => (
-                                                        <option key={ticket._id} value={ticket._id}>
-                                                            {ticket.ticketNumber} - {ticket.title}
-                                                        </option>
-                                                    ))}
-                                            </select>
-                                            <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+                                                    .map(ticket => ({
+                                                        value: ticket._id,
+                                                        label: `${ticket.ticketNumber} - ${ticket.title}`,
+                                                        subtitle: `${ticket.status} - ${ticket.priority}`
+                                                    }))}
+                                                value={newTask.relatedTickets}
+                                                onChange={(value) => setNewTask({ ...newTask, relatedTickets: value as string[] })}
+                                                placeholder="Select Related Tickets"
+                                                multiple={true}
+                                                className="mt-1"
+                                            />
                                         </div>
                                     </div>
                                     <div className="flex justify-end space-x-3 mt-6">
@@ -486,10 +490,9 @@ export default function TasksPage() {
                                             Create Task
                                         </button>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-                    )}
+                                </div>
+                            </form>
+                    </Modal>
 
                     {/* Tasks Table */}
                     <div className="bg-white shadow rounded-lg overflow-hidden">

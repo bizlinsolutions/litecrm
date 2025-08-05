@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import SearchableSelect from '@/components/ui/SearchableSelect';
+import Modal from '@/components/ui/Modal';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiDollarSign, FiCalendar, FiUser } from 'react-icons/fi';
 
 interface Invoice {
     _id: string;
@@ -47,7 +50,15 @@ export default function InvoicesPage() {
         items: [{ description: '', quantity: 1, unitPrice: 0 }],
         taxRate: 0,
         dueDate: '',
-        notes: ''
+        notes: '',
+        billingAddress: {
+            name: '',
+            street: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            country: ''
+        }
     });
 
     useEffect(() => {
@@ -119,9 +130,23 @@ export default function InvoicesPage() {
             const taxAmount = subtotal * (newInvoice.taxRate / 100);
             const total = subtotal + taxAmount;
 
+            // Get selected customer for billing address
+            const selectedCustomer = customers.find(c => c._id === newInvoice.customerId);
+            const billingAddress = newInvoice.billingAddress.name
+                ? newInvoice.billingAddress
+                : {
+                    name: selectedCustomer?.name || '',
+                    street: '',
+                    city: '',
+                    state: '',
+                    zipCode: '',
+                    country: ''
+                };
+
             const invoiceData = {
                 ...newInvoice,
                 items,
+                billingAddress,
                 subtotal,
                 taxAmount,
                 total
@@ -144,7 +169,15 @@ export default function InvoicesPage() {
                     items: [{ description: '', quantity: 1, unitPrice: 0 }],
                     taxRate: 0,
                     dueDate: '',
-                    notes: ''
+                    notes: '',
+                    billingAddress: {
+                        name: '',
+                        street: '',
+                        city: '',
+                        state: '',
+                        zipCode: '',
+                        country: ''
+                    }
                 });
                 setShowCreateForm(false);
             } else {
@@ -291,8 +324,9 @@ export default function InvoicesPage() {
                         <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
                         <button
                             onClick={() => setShowCreateForm(true)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
                         >
+                            <FiPlus className="h-4 w-4" />
                             Create Invoice
                         </button>
                     </div>
@@ -301,13 +335,16 @@ export default function InvoicesPage() {
                     <div className="bg-white p-4 rounded-lg shadow mb-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <input
-                                    type="text"
-                                    placeholder="Search invoices..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                />
+                                <div className="relative">
+                                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search invoices..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <select
@@ -333,28 +370,31 @@ export default function InvoicesPage() {
                     )}
 
                     {/* Create Form Modal */}
-                    {showCreateForm && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-                            <div className="bg-white rounded-lg p-6 w-full max-w-4xl m-4 max-h-screen overflow-y-auto">
-                                <h2 className="text-xl font-bold mb-4">Create New Invoice</h2>
-                                <form onSubmit={createInvoice}>
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">Customer *</label>
-                                                <select
-                                                    required
-                                                    value={newInvoice.customerId}
-                                                    onChange={(e) => setNewInvoice({ ...newInvoice, customerId: e.target.value })}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                                                >
-                                                    <option value="">Select Customer</option>
-                                                    {customers.map(customer => (
-                                                        <option key={customer._id} value={customer._id}>
-                                                            {customer.name} ({customer.email})
-                                                        </option>
-                                                    ))}
-                                                </select>
+                    <Modal
+                        isOpen={showCreateForm}
+                        onClose={() => setShowCreateForm(false)}
+                        title="Create New Invoice"
+                        size="4xl"
+                    >
+                        <form onSubmit={createInvoice}>
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-900 mb-1">
+                                            <FiUser className="inline h-4 w-4 mr-1" />
+                                            Customer *
+                                        </label>
+                                        <SearchableSelect
+                                            options={customers.map(customer => ({
+                                                value: customer._id,
+                                                label: customer.name,
+                                                subtitle: customer.email
+                                            }))}
+                                            value={newInvoice.customerId}
+                                            onChange={(value) => setNewInvoice({ ...newInvoice, customerId: value as string })}
+                                            placeholder="Select Customer"
+                                                    className="mt-1"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">Due Date *</label>
@@ -486,15 +526,15 @@ export default function InvoicesPage() {
                                         </button>
                                         <button
                                             type="submit"
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
                                         >
+                                            <FiDollarSign className="h-4 w-4" />
                                             Create Invoice
                                         </button>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-                    )}
+                                </div>
+                            </form>
+                    </Modal>
 
                     {/* Invoices Table */}
                     <div className="bg-white shadow rounded-lg overflow-hidden">

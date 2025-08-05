@@ -39,8 +39,9 @@ export const GET = withPermission(PERMISSIONS.INVOICE_READ)(
     async (req: AuthenticatedRequest, { params }: RouteParams) => {
         try {
             await dbConnect();
+            const { id } = await params;
 
-            const invoice = await Invoice.findById(params.id)
+            const invoice = await Invoice.findById(id)
                 .populate('customerId', 'name email company')
                 .populate('createdBy', 'name email');
 
@@ -67,8 +68,9 @@ export const PUT = withPermission(PERMISSIONS.INVOICE_UPDATE)(
     async (req: AuthenticatedRequest, { params }: RouteParams) => {
         try {
             await dbConnect();
+            const { id } = await params;
 
-            const existingInvoice = await Invoice.findById(params.id);
+            const existingInvoice = await Invoice.findById(id);
             if (!existingInvoice) {
                 return NextResponse.json(
                     { error: 'Invoice not found' },
@@ -101,7 +103,7 @@ export const PUT = withPermission(PERMISSIONS.INVOICE_UPDATE)(
             }
 
             const updatedInvoice = await Invoice.findByIdAndUpdate(
-                params.id,
+                id,
                 {
                     ...validatedData,
                     updatedAt: new Date()

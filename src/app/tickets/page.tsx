@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import SearchableSelect from '@/components/ui/SearchableSelect';
+import Modal from '@/components/ui/Modal';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiHelpCircle, FiFlag, FiMail } from 'react-icons/fi';
 
 interface Ticket {
     _id: string;
@@ -308,8 +311,9 @@ export default function TicketsPage() {
                         <h1 className="text-3xl font-bold text-gray-900">Support Tickets</h1>
                         <button
                             onClick={() => setShowCreateForm(true)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
                         >
+                            <FiPlus className="h-4 w-4" />
                             Create Ticket
                         </button>
                     </div>
@@ -318,13 +322,16 @@ export default function TicketsPage() {
                     <div className="bg-white p-4 rounded-lg shadow mb-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <input
-                                    type="text"
-                                    placeholder="Search tickets..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                />
+                                <div className="relative">
+                                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search tickets..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <select
@@ -363,12 +370,31 @@ export default function TicketsPage() {
                     )}
 
                     {/* Create Form Modal */}
-                    {showCreateForm && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                                <h2 className="text-xl font-bold mb-4">Create New Ticket</h2>
-                                <form onSubmit={createTicket}>
-                                    <div className="space-y-4">
+                    <Modal
+                        isOpen={showCreateForm}
+                        onClose={() => setShowCreateForm(false)}
+                        title="Create New Ticket"
+                        size="lg"
+                    >
+                        <form onSubmit={createTicket}>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">
+                                        <FiUser className="inline h-4 w-4 mr-1" />
+                                        Customer *
+                                    </label>
+                                    <SearchableSelect
+                                        options={customers.map(customer => ({
+                                            value: customer._id,
+                                            label: customer.name,
+                                            subtitle: customer.email
+                                                }))}
+                                                value={newTicket.customerId}
+                                                onChange={(value) => setNewTicket({ ...newTicket, customerId: value as string })}
+                                                placeholder="Select Customer"
+                                                className="mt-1"
+                                            />
+                                        </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">Title *</label>
                                             <input
@@ -428,10 +454,9 @@ export default function TicketsPage() {
                                             Create Ticket
                                         </button>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-                    )}
+                                </div>
+                            </form>
+                    </Modal>
 
                     {/* Tickets Table */}
                     <div className="bg-white shadow rounded-lg overflow-hidden">
