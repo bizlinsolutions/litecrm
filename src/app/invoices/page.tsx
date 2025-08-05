@@ -7,6 +7,8 @@ import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal from '@/components/ui/Modal';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiDollarSign, FiCalendar, FiUser } from 'react-icons/fi';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
+
 interface Invoice {
     _id: string;
     invoiceNumber: string;
@@ -78,7 +80,7 @@ export default function InvoicesPage() {
             if (searchTerm) params.append('search', searchTerm);
             if (statusFilter) params.append('status', statusFilter);
 
-            const response = await fetch(`/api/invoices?${params}`, {
+            const response = await fetch(`${apiBaseUrl}/api/invoices?${params}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -100,7 +102,7 @@ export default function InvoicesPage() {
     const fetchCustomers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/customers', {
+            const response = await fetch(`${apiBaseUrl}/api/customers`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -152,7 +154,7 @@ export default function InvoicesPage() {
                 total
             };
 
-            const response = await fetch('/api/invoices', {
+            const response = await fetch(`${apiBaseUrl}/api/invoices`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -198,7 +200,7 @@ export default function InvoicesPage() {
                 updateData.paidDate = new Date().toISOString();
             }
 
-            const response = await fetch(`/api/invoices/${id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/invoices/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -223,7 +225,7 @@ export default function InvoicesPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/invoices/${id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/invoices/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

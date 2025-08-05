@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { FiPlus, FiSearch, FiUsers, FiEdit2, FiTrash2, FiUserCheck, FiUserX } from 'react-icons/fi';
 import Modal from '@/components/ui/Modal';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
+
 interface User {
     _id: string;
     name: string;
@@ -39,7 +41,7 @@ export default function UsersPage() {
     const fetchUsers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/users', {
+            const response = await fetch(`${apiBaseUrl}/api/users`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -92,7 +94,7 @@ export default function UsersPage() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/users', {
+            const response = await fetch(`${apiBaseUrl}/api/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -126,7 +128,7 @@ export default function UsersPage() {
                 delete updateData.password;
             }
 
-            const response = await fetch(`/api/users/${editingUser._id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/users/${editingUser._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -154,7 +156,7 @@ export default function UsersPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/users/${userId}`, {
+            const response = await fetch(`${apiBaseUrl}/api/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -419,8 +421,8 @@ export default function UsersPage() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${user.isActive
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-red-100 text-red-800'
                                         }`}>
                                         {user.isActive ? (
                                             <>

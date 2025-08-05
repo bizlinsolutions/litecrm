@@ -1,6 +1,6 @@
 # LiteCRM
 
-A comprehensive Customer Relationship Management (CRM) system built with Next.js, TypeScript, MongoDB, and Express.js. Designed as a modular plugin that can be easily deployed and integrated into existing applications.
+A comprehensive Customer Relationship Management (CRM) system built with Next.js, TypeScript, MongoDB, and Express.js. Features a separated API architecture with a standalone Express.js backend and Next.js frontend, packaged as a single application.
 
 ## 🚀 Features
 
@@ -10,18 +10,26 @@ A comprehensive Customer Relationship Management (CRM) system built with Next.js
 - **Support Tickets**: Built-in ticketing system for customer support with messaging capabilities
 - **Webhook Integration**: Real-time event notifications via webhooks for external integrations
 - **Role-Based Access Control (RBAC)**: Granular permissions system with predefined roles
-- **REST API**: Complete API coverage for all CRM modules
+- **REST API**: Complete API coverage for all CRM modules via standalone Express.js server
 - **Environment-Based Configuration**: Easy setup for different deployment environments
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 14 with App Router, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes with Express.js middleware
+- **Frontend**: Next.js 15 with App Router, TypeScript, Tailwind CSS
+- **Backend**: Express.js standalone API server
 - **Database**: MongoDB with Mongoose ODM
 - **Authentication**: JWT-based authentication with RBAC
 - **Validation**: Zod for request/response validation
 - **Styling**: Tailwind CSS with responsive design
+- **Development**: Concurrently runs both API and UI servers
 - **Package Management**: npm
+
+## 📦 Architecture
+
+The application now uses a separated architecture:
+- **API Server**: Express.js server running on port 3001
+- **UI Server**: Next.js application running on port 3000
+- **Single Package**: Both servers are managed through one `package.json`
 
 ## 📦 Installation
 
@@ -39,7 +47,13 @@ A comprehensive Customer Relationship Management (CRM) system built with Next.js
    npm install
    ```
 
-2. **Start the application**:
+2. **Configuration**:
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+3. **Start the application**:
    ```bash
    npm start
    ```
@@ -47,9 +61,39 @@ A comprehensive Customer Relationship Management (CRM) system built with Next.js
 That's it! The setup command will automatically:
 - Initialize the MongoDB database with demo data
 - Create demo users with different roles
-- Start the development server
+- Start both API server (port 3001) and UI server (port 3000)
 
-The application will be available at `http://localhost:3000`
+The application will be available at:
+- **Frontend**: `http://localhost:3000`
+- **API Documentation**: `http://localhost:3001/api/docs`
+
+### Development Commands
+
+```bash
+# Start both API and UI servers in development mode
+npm run dev
+
+# Start only the API server
+npm run api:dev
+
+# Start only the UI server  
+npm run ui:dev
+
+# Setup/reset database
+npm run setup
+
+# Build for production
+npm run build
+
+# Start production servers
+npm run prod
+
+# Run type checking
+npm run typecheck
+
+# Run linting
+npm run lint
+```
 
 ### Demo Credentials
 - **Admin:** admin@litecrm.com / admin123
@@ -62,23 +106,21 @@ If you need to customize settings, copy and edit the environment file:
 ```bash
 cp .env.example .env.local
 ```
-   ADMIN_EMAIL=admin@litecrm.com
-   ADMIN_PASSWORD=admin123
-   ```
 
-3. **Initialize Database**:
-   ```bash
-   npm run setup
-   ```
+Key environment variables:
+```bash
+# API Configuration
+API_PORT=3001
+FRONTEND_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:3001
 
-4. **Start Development Server**:
-   ```bash
-   npm run dev
-   ```
+# Database
+MONGODB_URI=mongodb://localhost:27017/litecrm
 
-5. **Access the Application**:
-   - Open [http://localhost:3000](http://localhost:3000)
-   - Login with admin credentials: `admin@litecrm.com` / `admin123`
+# JWT Configuration  
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+```
 
 ## 🔧 Plugin Usage
 

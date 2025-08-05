@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
+
 interface Customer {
     _id: string;
     name: string;
@@ -47,7 +49,7 @@ export default function CustomersPage() {
             if (searchTerm) params.append('search', searchTerm);
             if (statusFilter) params.append('status', statusFilter);
 
-            const response = await fetch(`/api/customers?${params}`, {
+            const response = await fetch(`${apiBaseUrl}/api/customers?${params}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -70,7 +72,7 @@ export default function CustomersPage() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/customers', {
+            const response = await fetch(`${apiBaseUrl}/api/customers`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -97,7 +99,7 @@ export default function CustomersPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/customers/${id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/customers/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

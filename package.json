@@ -5,10 +5,12 @@
   "main": "src/app/page.tsx",
   "scripts": {
     "setup": "node scripts/init-db.js",
-    "start": "npm run setup && next dev",
+    "dev": "nodemon server.js",
+    "start": "npm run setup && npm run dev",
     "build": "next build",
-    "prod": "next start",
-    "lint": "next lint"
+    "prod": "npm run build && node server.js",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "crm",
@@ -51,12 +53,16 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
+    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.536.0",
     "mongoose": "^8.17.0",
     "next": "15.4.5",
     "node-cron": "^4.2.1",
+    "nodemon": "^3.0.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",

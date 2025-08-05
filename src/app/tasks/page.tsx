@@ -7,6 +7,8 @@ import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal from '@/components/ui/Modal';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiClock, FiFlag, FiCheckSquare } from 'react-icons/fi';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
+
 interface Task {
     _id: string;
     title: string;
@@ -88,7 +90,8 @@ export default function TasksPage() {
             if (statusFilter) params.append('status', statusFilter);
             if (priorityFilter) params.append('priority', priorityFilter);
 
-            const response = await fetch(`/api/tasks?${params}`, {
+
+            const response = await fetch(`${apiBaseUrl}/api/tasks?${params}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -110,7 +113,8 @@ export default function TasksPage() {
     const fetchCustomers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/customers', {
+
+            const response = await fetch(`${apiBaseUrl}/api/customers`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -128,7 +132,8 @@ export default function TasksPage() {
     const fetchInvoices = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/invoices', {
+
+            const response = await fetch(`${apiBaseUrl}/api/invoices`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -146,7 +151,8 @@ export default function TasksPage() {
     const fetchTickets = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/tickets', {
+
+            const response = await fetch(`${apiBaseUrl}/api/tickets`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -165,7 +171,8 @@ export default function TasksPage() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/tasks', {
+
+            const response = await fetch(`${apiBaseUrl}/api/tasks`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -199,7 +206,8 @@ export default function TasksPage() {
     const updateTaskStatus = async (id: string, status: string) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/tasks/${id}`, {
+
+            const response = await fetch(`${apiBaseUrl}/api/tasks/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -224,7 +232,8 @@ export default function TasksPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/tasks/${id}`, {
+
+            const response = await fetch(`${apiBaseUrl}/api/tasks/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

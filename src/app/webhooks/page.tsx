@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
+
 interface Webhook {
     _id: string;
     name: string;
@@ -64,7 +66,7 @@ export default function WebhooksPage() {
     const fetchWebhooks = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/webhooks', {
+            const response = await fetch(`${apiBaseUrl}/api/webhooks`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -87,7 +89,7 @@ export default function WebhooksPage() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/webhooks', {
+            const response = await fetch(`${apiBaseUrl}/api/webhooks`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -119,7 +121,7 @@ export default function WebhooksPage() {
     const toggleWebhook = async (id: string, active: boolean) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/webhooks/${id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/webhooks/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -143,7 +145,7 @@ export default function WebhooksPage() {
         setTestingWebhook(id);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/webhooks/${id}/test`, {
+            const response = await fetch(`${apiBaseUrl}/api/webhooks/${id}/test`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -169,7 +171,7 @@ export default function WebhooksPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/webhooks/${id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/webhooks/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

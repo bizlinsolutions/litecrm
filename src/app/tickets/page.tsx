@@ -7,6 +7,8 @@ import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal from '@/components/ui/Modal';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiHelpCircle, FiFlag, FiMail } from 'react-icons/fi';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
+
 interface Ticket {
     _id: string;
     ticketNumber: string;
@@ -85,7 +87,7 @@ export default function TicketsPage() {
             if (statusFilter) params.append('status', statusFilter);
             if (priorityFilter) params.append('priority', priorityFilter);
 
-            const response = await fetch(`/api/tickets?${params}`, {
+            const response = await fetch(`${apiBaseUrl}/api/tickets?${params}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -107,7 +109,7 @@ export default function TicketsPage() {
     const fetchCustomers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/customers', {
+            const response = await fetch(`${apiBaseUrl}/api/customers`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -125,7 +127,7 @@ export default function TicketsPage() {
     const fetchInvoices = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/invoices', {
+            const response = await fetch(`${apiBaseUrl}/api/invoices`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -143,7 +145,7 @@ export default function TicketsPage() {
     const fetchRelatedTickets = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/tickets', {
+            const response = await fetch(`${apiBaseUrl}/api/tickets`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -162,7 +164,7 @@ export default function TicketsPage() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/tickets', {
+            const response = await fetch(`${apiBaseUrl}/api/tickets`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -195,7 +197,7 @@ export default function TicketsPage() {
     const updateTicketStatus = async (id: string, status: string) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/tickets/${id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/tickets/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,7 +222,7 @@ export default function TicketsPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/tickets/${id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/tickets/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
