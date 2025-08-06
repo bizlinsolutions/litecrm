@@ -2,7 +2,7 @@
   "name": "litecrm",
   "version": "1.0.0",
   "description": "A comprehensive CRM system with customer management, invoicing, tasks, support tickets, webhooks, and RBAC",
-  "main": "src/app/page.tsx",
+  "main": "server.js",
   "scripts": {
     "setup": "node scripts/init-db.js",
     "dev": "nodemon server.js",
@@ -36,12 +36,16 @@
   },
   "files": [
     "src/**/*",
+    "api/**/*",
     "scripts/**/*",
     "public/**/*",
     ".env.example",
     "docker-compose.yml",
     "Dockerfile",
-    "README.md"
+    "README.md",
+    "server.js",
+    "next.config.ts",
+    "tsconfig.json"
   ],
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

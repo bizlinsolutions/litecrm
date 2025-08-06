@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal from '@/components/ui/Modal';
-import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiDollarSign, FiCalendar, FiUser } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiDollarSign, FiUser } from 'react-icons/fi';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
 

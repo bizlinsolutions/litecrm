@@ -1,20 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Customer } from '@/types';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
-
-interface Customer {
-    _id: string;
-    name: string;
-    email?: string;
-    phone?: string;
-    company?: string;
-    status: 'active' | 'inactive' | 'prospect' | 'lead';
-    createdAt: string;
-}
 
 export default function CustomersPage() {
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -25,24 +16,21 @@ export default function CustomersPage() {
     const [statusFilter, setStatusFilter] = useState('');
     const router = useRouter();
 
-    const [newCustomer, setNewCustomer] = useState({
+    const [newCustomer, setNewCustomer] = useState<{
+        name: string;
+        email: string;
+        phone: string;
+        company: string;
+        status: 'active' | 'inactive' | 'prospect' | 'lead';
+    }>({
         name: '',
         email: '',
         phone: '',
         company: '',
-        status: 'prospect' as const
+        status: 'prospect'
     });
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-        fetchCustomers();
-    }, [router, searchTerm, statusFilter]);
-
-    const fetchCustomers = async () => {
+    const fetchCustomers = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             const params = new URLSearchParams();
@@ -61,12 +49,21 @@ export default function CustomersPage() {
             } else {
                 setError(data.error || 'Failed to fetch customers');
             }
-        } catch (err) {
+        } catch {
             setError('Network error');
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchTerm, statusFilter]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+        fetchCustomers();
+    }, [router, fetchCustomers]);
 
     const createCustomer = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -89,7 +86,7 @@ export default function CustomersPage() {
             } else {
                 setError(data.error || 'Failed to create customer');
             }
-        } catch (err) {
+        } catch {
             setError('Network error');
         }
     };
@@ -112,7 +109,7 @@ export default function CustomersPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to delete customer');
             }
-        } catch (err) {
+        } catch {
             setError('Network error');
         }
     };
@@ -267,7 +264,7 @@ export default function CustomersPage() {
                                             <label className="block text-sm font-medium text-gray-700">Status</label>
                                             <select
                                                 value={newCustomer.status}
-                                                onChange={(e) => setNewCustomer({ ...newCustomer, status: e.target.value as any })}
+                                                onChange={(e) => setNewCustomer({ ...newCustomer, status: e.target.value as 'active' | 'inactive' | 'prospect' | 'lead' })}
                                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                                             >
                                                 <option value="prospect">Prospect</option>

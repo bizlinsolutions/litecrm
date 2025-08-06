@@ -17,7 +17,7 @@ export interface ICustomer extends Document {
   status: 'active' | 'inactive' | 'prospect' | 'lead';
   assignedTo?: mongoose.Types.ObjectId;
   notes?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
   totalSpent: number;
   lastContactDate?: Date;
   createdBy: mongoose.Types.ObjectId;
