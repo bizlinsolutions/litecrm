@@ -25,6 +25,25 @@ const updateUserSchema = z.object({
     avatar: z.string().optional(),
 }).partial();
 
+// GET /api/users/me - Get current user profile
+router.get('/me', auth, async (req, res) => {
+    try {
+        await connectToDatabase();
+
+        const user = await User.findById(req.user._id).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ user });
+
+    } catch (error) {
+        console.error('User profile fetch error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // GET /api/users
 router.get('/', auth, requirePermission(PERMISSIONS.USER_READ), async (req, res) => {
     try {

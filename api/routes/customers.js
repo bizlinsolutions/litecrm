@@ -8,7 +8,11 @@ const { requirePermission, PERMISSIONS } = require('../lib/permissions');
 
 const createCustomerSchema = z.object({
     name: z.string().min(1, 'Name is required'),
-    email: z.string().email('Invalid email format').optional(),
+    email: z.union([
+        z.string().email('Invalid email format'),
+        z.string().length(0),
+        z.undefined()
+    ]).optional(),
     phone: z.string().optional(),
     company: z.string().optional(),
     address: z.object({

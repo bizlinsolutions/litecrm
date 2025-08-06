@@ -12,7 +12,7 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
 interface Ticket {
     _id: string;
     ticketNumber: string;
-    title: string;
+    subject: string;
     description: string;
     priority: 'low' | 'medium' | 'high' | 'urgent';
     status: 'open' | 'in-progress' | 'pending' | 'resolved' | 'closed';
@@ -20,7 +20,7 @@ interface Ticket {
     assignedTo?: { _id: string; name: string; email: string };
     customerId: { _id: string; name: string; email: string }; // Required
     relatedInvoices?: { _id: string; invoiceNumber: string }[];
-    relatedTickets?: { _id: string; ticketNumber: string; title: string }[];
+    relatedTickets?: { _id: string; ticketNumber: string; subject: string }[];
     createdBy: { _id: string; name: string; email: string };
     createdAt: string;
 }
@@ -40,7 +40,7 @@ interface Invoice {
 interface RelatedTicket {
     _id: string;
     ticketNumber: string;
-    title: string;
+    subject: string;
     customerId: string;
 }
 
@@ -58,7 +58,7 @@ export default function TicketsPage() {
     const router = useRouter();
 
     const [newTicket, setNewTicket] = useState({
-        title: '',
+        subject: '',
         description: '',
         priority: 'medium' as const,
         category: '',
@@ -177,7 +177,7 @@ export default function TicketsPage() {
             if (response.ok) {
                 setTickets([data.ticket, ...tickets]);
                 setNewTicket({
-                    title: '',
+                    subject: '',
                     description: '',
                     priority: 'medium',
                     category: '',
@@ -398,12 +398,12 @@ export default function TicketsPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Title *</label>
+                                    <label className="block text-sm font-medium text-gray-700">Subject *</label>
                                     <input
                                         type="text"
                                         required
-                                        value={newTicket.title}
-                                        onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
+                                        value={newTicket.subject}
+                                        onChange={(e) => setNewTicket({ ...newTicket, subject: e.target.value })}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                                     />
                                 </div>
@@ -431,9 +431,10 @@ export default function TicketsPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                                    <label className="block text-sm font-medium text-gray-700">Category *</label>
                                     <input
                                         type="text"
+                                        required
                                         value={newTicket.category}
                                         onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value })}
                                         placeholder="e.g., Bug, Feature Request, Support"
@@ -491,7 +492,7 @@ export default function TicketsPage() {
                                             <div className="text-sm font-medium text-gray-900">
                                                 {ticket.ticketNumber}
                                             </div>
-                                            <div className="text-sm font-medium text-blue-600">{ticket.title}</div>
+                                            <div className="text-sm font-medium text-blue-600">{ticket.subject}</div>
                                             <div className="text-sm text-gray-500 truncate max-w-xs">{ticket.description}</div>
                                             {ticket.category && (
                                                 <div className="text-xs text-gray-400">Category: {ticket.category}</div>

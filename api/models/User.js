@@ -36,6 +36,17 @@ const UserSchema = new Schema({
     avatar: {
         type: String,
     },
+    refreshTokens: [{
+        token: String,
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+        expiresAt: {
+            type: Date,
+            default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        },
+    }],
 }, {
     timestamps: true,
 });

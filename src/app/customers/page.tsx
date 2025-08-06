@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Customer } from '@/types';
+import { useAuth } from '@/context/AuthContext';
+import { useApi } from '@/hooks/useAuthenticatedFetch';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
 

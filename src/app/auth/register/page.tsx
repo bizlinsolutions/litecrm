@@ -53,8 +53,9 @@ export default function RegisterPage() {
             const data = await response.json();
 
             if (response.ok) {
-                // Store the token in localStorage
+                // Store the tokens in localStorage
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('refreshToken', data.refreshToken);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
                 // Redirect to dashboard

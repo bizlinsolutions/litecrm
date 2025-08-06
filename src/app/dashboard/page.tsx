@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 interface User {
     id: string;
@@ -12,38 +13,20 @@ interface User {
 }
 
 export default function Dashboard() {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { user, logout, isLoading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        // Check if user is logged in
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
-
-        if (!token || !userData) {
-            router.push('/login');
-            return;
-        }
-
-        try {
-            const parsedUser = JSON.parse(userData);
-            setUser(parsedUser);
-        } catch (error) {
-            console.error('Error parsing user data:', error);
+        if (!isLoading && !isAuthenticated) {
             router.push('/login');
         }
-
-        setLoading(false);
-    }, [router]);
+    }, [isLoading, isAuthenticated, router]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        router.push('/login');
+        logout();
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
@@ -52,6 +35,10 @@ export default function Dashboard() {
                 </div>
             </div>
         );
+    }
+
+    if (!isAuthenticated) {
+        return null; // Will redirect in useEffect
     }
 
     return (

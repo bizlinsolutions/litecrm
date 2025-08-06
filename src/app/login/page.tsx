@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -12,38 +11,22 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const router = useRouter();
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
-        try {
-            const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+        const result = await login(email, password);
 
-            const data = await response.json();
-
-            if (response.ok) {
-                // Store the token in localStorage
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-
-                // Redirect to dashboard
-                router.push('/dashboard');
-            } else {
-                setError(data.error || 'Login failed');
-            }
-        } catch {
-            setError('Network error. Please try again.');
-        } finally {
-            setIsLoading(false);
+        if (result.success) {
+            router.push('/dashboard');
+        } else {
+            setError(result.error || 'Login failed');
         }
+
+        setIsLoading(false);
     };
 
     return (

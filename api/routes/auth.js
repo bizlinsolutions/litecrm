@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { z } = require('zod');
+const jwt = require('jsonwebtoken');
 const connectToDatabase = require('../lib/mongodb');
 const User = require('../models/User');
-const { hashPassword, comparePassword, generateToken } = require('../lib/auth');
+const { hashPassword, comparePassword, generateToken, generateRefreshToken, verifyRefreshToken } = require('../lib/auth');
 const { getRolePermissions } = require('../lib/permissions');
 
 const loginSchema = z.object({
@@ -41,10 +42,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Update last login
-        await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
-
-        // Generate JWT token
+        // Generate JWT token and refresh token
         const token = generateToken({
             userId: user._id.toString(),
             email: user.email,
@@ -52,9 +50,25 @@ router.post('/login', async (req, res) => {
             permissions: user.permissions,
         });
 
+        const refreshToken = generateRefreshToken({
+            userId: user._id.toString(),
+        });
+
+        // Store refresh token in database
+        await User.findByIdAndUpdate(user._id, {
+            $push: {
+                refreshTokens: {
+                    token: refreshToken,
+                    createdAt: new Date(),
+                }
+            },
+            lastLogin: new Date()
+        });
+
         res.json({
             message: 'Login successful',
             token,
+            refreshToken,
             user: {
                 id: user._id,
                 name: user.name,
@@ -108,9 +122,7 @@ router.post('/register', async (req, res) => {
             permissions,
         });
 
-        await user.save();
-
-        // Generate JWT token
+        // Generate JWT token and refresh token
         const token = generateToken({
             userId: user._id.toString(),
             email: user.email,
@@ -118,9 +130,24 @@ router.post('/register', async (req, res) => {
             permissions: user.permissions,
         });
 
+        const refreshToken = generateRefreshToken({
+            userId: user._id.toString(),
+        });
+
+        // Store refresh token in database
+        await User.findByIdAndUpdate(user._id, {
+            $push: {
+                refreshTokens: {
+                    token: refreshToken,
+                    createdAt: new Date(),
+                }
+            }
+        });
+
         res.status(201).json({
             message: 'Registration successful',
             token,
+            refreshToken,
             user: {
                 id: user._id,
                 name: user.name,
@@ -139,6 +166,99 @@ router.post('/register', async (req, res) => {
         }
 
         console.error('Registration error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// POST /api/auth/refresh - Refresh access token
+router.post('/refresh', async (req, res) => {
+    try {
+        await connectToDatabase();
+
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(401).json({ error: 'Refresh token required' });
+        }
+
+        // Verify refresh token
+        const decoded = verifyRefreshToken(refreshToken);
+        if (!decoded) {
+            return res.status(401).json({ error: 'Invalid refresh token' });
+        }
+
+        // Find user and validate refresh token
+        const user = await User.findOne({
+            _id: decoded.userId,
+            'refreshTokens.token': refreshToken,
+            'refreshTokens.expiresAt': { $gt: new Date() }
+        });
+
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid or expired refresh token' });
+        }
+
+        // Generate new access token
+        const newToken = generateToken({
+            userId: user._id.toString(),
+            email: user.email,
+            role: user.role,
+            permissions: user.permissions,
+        });
+
+        res.json({
+            token: newToken,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                permissions: user.permissions,
+                avatar: user.avatar,
+            },
+        });
+
+    } catch (error) {
+        console.error('Token refresh error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// POST /api/auth/logout - Logout user
+router.post('/logout', async (req, res) => {
+    try {
+        await connectToDatabase();
+
+        const { refreshToken } = req.body;
+        const authHeader = req.header('Authorization');
+
+        if (!authHeader) {
+            return res.status(401).json({ error: 'Authorization header required' });
+        }
+
+        const token = authHeader.replace('Bearer ', '');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+
+        if (refreshToken) {
+            // Remove specific refresh token
+            await User.findByIdAndUpdate(decoded.userId, {
+                $pull: {
+                    refreshTokens: { token: refreshToken }
+                }
+            });
+        } else {
+            // Remove all refresh tokens (logout from all devices)
+            await User.findByIdAndUpdate(decoded.userId, {
+                $set: {
+                    refreshTokens: []
+                }
+            });
+        }
+
+        res.json({ message: 'Logout successful' });
+
+    } catch (error) {
+        console.error('Logout error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
