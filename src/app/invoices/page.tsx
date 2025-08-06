@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal from '@/components/ui/Modal';
-import { FiPlus, FiSearch, FiDollarSign, FiUser } from 'react-icons/fi';
+import DetailModal from '@/components/ui/DetailModal';
+import EditModal from '@/components/ui/EditModal';
+import { FiPlus, FiSearch, FiDollarSign, FiUser, FiEye, FiEdit } from 'react-icons/fi';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
 
@@ -43,6 +45,9 @@ export default function InvoicesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const router = useRouter();
@@ -211,13 +216,62 @@ export default function InvoicesPage() {
 
             const data = await response.json();
             if (response.ok) {
-                setInvoices(invoices.map(inv => inv._id === id ? data.invoice : inv));
+                // Update the invoice in the state
+                setInvoices(invoices.map(inv =>
+                    inv._id === id ? { ...inv, ...data.invoice } : inv
+                ));
             } else {
                 setError(data.error || 'Failed to update invoice');
             }
         } catch (err) {
             setError('Network error');
         }
+    };
+
+    const editInvoice = async (formData: any) => {
+        if (!selectedInvoice) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${apiBaseUrl}/api/invoices/${selectedInvoice._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                // Update the invoice in the state
+                setInvoices(invoices.map(inv =>
+                    inv._id === selectedInvoice._id ? data.invoice : inv
+                ));
+                setShowEditModal(false);
+                setSelectedInvoice(null);
+            } else {
+                throw new Error(data.error || 'Failed to update invoice');
+            }
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const openDetailModal = (invoice: Invoice) => {
+        setSelectedInvoice(invoice);
+        setShowDetailModal(true);
+    };
+
+    const openEditModal = (invoice: Invoice) => {
+        setSelectedInvoice(invoice);
+        setShowEditModal(true);
+    };
+
+    const closeModals = () => {
+        setShowDetailModal(false);
+        setShowEditModal(false);
+        setSelectedInvoice(null);
     };
 
     const deleteInvoice = async (id: string) => {
@@ -616,12 +670,28 @@ export default function InvoicesPage() {
                                             {new Date(invoice.dueDate).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => deleteInvoice(invoice._id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Delete
-                                            </button>
+                                            <div className="flex items-center justify-end space-x-2">
+                                                <button
+                                                    onClick={() => openDetailModal(invoice)}
+                                                    className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                                                >
+                                                    <FiEye className="h-4 w-4" />
+                                                    View
+                                                </button>
+                                                <button
+                                                    onClick={() => openEditModal(invoice)}
+                                                    className="text-green-600 hover:text-green-900 flex items-center gap-1"
+                                                >
+                                                    <FiEdit className="h-4 w-4" />
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteInvoice(invoice._id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -634,6 +704,28 @@ export default function InvoicesPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Detail Modal */}
+                    <DetailModal
+                        isOpen={showDetailModal}
+                        onClose={closeModals}
+                        onEdit={() => {
+                            setShowDetailModal(false);
+                            setShowEditModal(true);
+                        }}
+                        type="invoice"
+                        data={selectedInvoice}
+                    />
+
+                    {/* Edit Modal */}
+                    <EditModal
+                        isOpen={showEditModal}
+                        onClose={closeModals}
+                        onSave={editInvoice}
+                        type="invoice"
+                        data={selectedInvoice}
+                        customers={customers}
+                    />
                 </div>
             </div>
         </div>

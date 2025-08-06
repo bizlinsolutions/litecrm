@@ -1,30 +1,102 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
+interface DashboardSummary {
+    customers: number;
+    invoices: number;
+    activeTasks: number;
+    openTickets: number;
 }
 
-export default function Dashboard() {
+interface GraphDataPoint {
+    _id: string;
+    count: number;
+}
+
+interface DashboardGraph {
+    customers: GraphDataPoint[];
+    invoices: GraphDataPoint[];
+    tasks: GraphDataPoint[];
+    tickets: GraphDataPoint[];
+}
+
+export default function DashboardPage() {
     const { user, logout, isLoading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            router.push('/login');
+            router.push("/login");
         }
     }, [isLoading, isAuthenticated, router]);
 
     const handleLogout = () => {
         logout();
     };
+
+    const [summary, setSummary] = useState<DashboardSummary>({
+        customers: 0,
+        invoices: 0,
+        activeTasks: 0,
+        openTickets: 0,
+    });
+    const [graph, setGraph] = useState<DashboardGraph>({
+        customers: [],
+        invoices: [],
+        tasks: [],
+        tickets: [],
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchDashboard() {
+            if (!isAuthenticated) return;
+
+            try {
+                // Use basePath-aware URL for Next.js App Router API routes
+                const response = await fetch('/crm/api/dashboard', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setSummary(data.summary || {
+                    customers: 0,
+                    invoices: 0,
+                    activeTasks: 0,
+                    openTickets: 0,
+                });
+                setGraph(data.graph || {
+                    customers: [],
+                    invoices: [],
+                    tasks: [],
+                    tickets: [],
+                });
+            } catch (err) {
+                console.error('Error fetching dashboard data:', err);
+                // Keep default values on error
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (!isLoading) {
+            fetchDashboard();
+        }
+    }, [isLoading, isAuthenticated]);
+
+    // Prepare chart data (simple line for customers)
+    const chartData = Array.isArray(graph?.customers) ? graph.customers.map((d: any) => d.count) : [];
+    const chartLabels = Array.isArray(graph?.customers) ? graph.customers.map((d: any) => d._id) : [];
 
     if (isLoading) {
         return (
@@ -93,7 +165,7 @@ export default function Dashboard() {
                                             <dt className="text-sm font-medium text-gray-500 truncate">
                                                 Total Customers
                                             </dt>
-                                            <dd className="text-lg font-medium text-gray-900">-</dd>
+                                            <dd className="text-lg font-medium text-gray-900">{loading ? '-' : summary.customers}</dd>
                                         </dl>
                                     </div>
                                 </div>
@@ -113,7 +185,7 @@ export default function Dashboard() {
                                             <dt className="text-sm font-medium text-gray-500 truncate">
                                                 Total Invoices
                                             </dt>
-                                            <dd className="text-lg font-medium text-gray-900">-</dd>
+                                            <dd className="text-lg font-medium text-gray-900">{loading ? '-' : summary.invoices}</dd>
                                         </dl>
                                     </div>
                                 </div>
@@ -133,7 +205,7 @@ export default function Dashboard() {
                                             <dt className="text-sm font-medium text-gray-500 truncate">
                                                 Active Tasks
                                             </dt>
-                                            <dd className="text-lg font-medium text-gray-900">-</dd>
+                                            <dd className="text-lg font-medium text-gray-900">{loading ? '-' : summary.activeTasks}</dd>
                                         </dl>
                                     </div>
                                 </div>
@@ -153,12 +225,56 @@ export default function Dashboard() {
                                             <dt className="text-sm font-medium text-gray-500 truncate">
                                                 Open Tickets
                                             </dt>
-                                            <dd className="text-lg font-medium text-gray-900">-</dd>
+                                            <dd className="text-lg font-medium text-gray-900">{loading ? '-' : summary.openTickets}</dd>
                                         </dl>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Last 30 Days Activity */}
+                    <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+                        <h2 className="text-xl font-semibold mb-4">Last 30 Days Activity</h2>
+                        {/* Simple SVG line chart for customers (can be replaced with chart lib) */}
+                        <div className="h-64 flex items-center justify-center">
+                            {loading ? (
+                                <span className="text-gray-400">Loading graph...</span>
+                            ) : chartData.length === 0 ? (
+                                <span className="text-gray-400">No data</span>
+                            ) : (
+                                <svg width="100%" height="220" viewBox="0 0 400 220">
+                                    {/* Axes */}
+                                    <line x1="40" y1="20" x2="40" y2="200" stroke="#ccc" />
+                                    <line x1="40" y1="200" x2="380" y2="200" stroke="#ccc" />
+                                    {/* Line */}
+                                    {chartData.length > 1 && (
+                                        <polyline
+                                            fill="none"
+                                            stroke="#3b82f6"
+                                            strokeWidth="3"
+                                            points={chartData.map((v, i) => {
+                                                const x = 40 + (i * (340 / (chartData.length - 1)));
+                                                const max = Math.max(...chartData);
+                                                const min = Math.min(...chartData);
+                                                const y = 200 - ((v - min) / (max - min || 1)) * 180;
+                                                return `${x},${y}`;
+                                            }).join(' ')}
+                                        />
+                                    )}
+                                    {/* Labels */}
+                                    {chartLabels.map((label, i) => {
+                                        const x = 40 + (i * (340 / (chartLabels.length - 1)));
+                                        return (
+                                            <text key={label} x={x} y={215} fontSize="10" textAnchor="middle" fill="#888">
+                                                {label.slice(5)}
+                                            </text>
+                                        );
+                                    })}
+                                </svg>
+                            )}
+                        </div>
+                        <div className="mt-2 text-xs text-gray-500">Showing new customers per day (last 30 days)</div>
                     </div>
 
                     {/* CRM Modules */}

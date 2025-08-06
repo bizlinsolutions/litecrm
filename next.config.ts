@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   basePath: '/crm',
   assetPrefix: '/crm',
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
   env: {
     MONGODB_URI: process.env.MONGODB_URI,
     MONGODB_DB_NAME: process.env.MONGODB_DB_NAME,

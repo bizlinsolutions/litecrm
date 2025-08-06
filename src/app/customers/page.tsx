@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { Customer } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import { useApi } from '@/hooks/useAuthenticatedFetch';
+import DetailModal from '@/components/ui/DetailModal';
+import EditModal from '@/components/ui/EditModal';
+import { FiEye, FiEdit } from 'react-icons/fi';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
 
@@ -14,6 +17,9 @@ export default function CustomersPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const router = useRouter();
@@ -114,6 +120,52 @@ export default function CustomersPage() {
         } catch {
             setError('Network error');
         }
+    };
+
+    const editCustomer = async (formData: any) => {
+        if (!selectedCustomer) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${apiBaseUrl}/api/customers/${selectedCustomer._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                // Update the customer in the state
+                setCustomers(customers.map(c =>
+                    c._id === selectedCustomer._id ? data.customer : c
+                ));
+                setShowEditModal(false);
+                setSelectedCustomer(null);
+            } else {
+                throw new Error(data.error || 'Failed to update customer');
+            }
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const openDetailModal = (customer: Customer) => {
+        setSelectedCustomer(customer);
+        setShowDetailModal(true);
+    };
+
+    const openEditModal = (customer: Customer) => {
+        setSelectedCustomer(customer);
+        setShowEditModal(true);
+    };
+
+    const closeModals = () => {
+        setShowDetailModal(false);
+        setShowEditModal(false);
+        setSelectedCustomer(null);
     };
 
     const getStatusColor = (status: string) => {
@@ -343,12 +395,28 @@ export default function CustomersPage() {
                                             {new Date(customer.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => deleteCustomer(customer._id)}
-                                                className="text-red-600 hover:text-red-900 ml-4"
-                                            >
-                                                Delete
-                                            </button>
+                                            <div className="flex items-center justify-end space-x-2">
+                                                <button
+                                                    onClick={() => openDetailModal(customer)}
+                                                    className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                                                >
+                                                    <FiEye className="h-4 w-4" />
+                                                    View
+                                                </button>
+                                                <button
+                                                    onClick={() => openEditModal(customer)}
+                                                    className="text-green-600 hover:text-green-900 flex items-center gap-1"
+                                                >
+                                                    <FiEdit className="h-4 w-4" />
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteCustomer(customer._id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -361,6 +429,27 @@ export default function CustomersPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Detail Modal */}
+                    <DetailModal
+                        isOpen={showDetailModal}
+                        onClose={closeModals}
+                        onEdit={() => {
+                            setShowDetailModal(false);
+                            setShowEditModal(true);
+                        }}
+                        type="customer"
+                        data={selectedCustomer}
+                    />
+
+                    {/* Edit Modal */}
+                    <EditModal
+                        isOpen={showEditModal}
+                        onClose={closeModals}
+                        onSave={editCustomer}
+                        type="customer"
+                        data={selectedCustomer}
+                    />
                 </div>
             </div>
         </div>

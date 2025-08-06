@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal from '@/components/ui/Modal';
+import DetailModal from '@/components/ui/DetailModal';
+import EditModal from '@/components/ui/EditModal';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiClock, FiFlag, FiCheckSquare } from 'react-icons/fi';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
@@ -54,6 +56,9 @@ export default function TasksPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
@@ -218,13 +223,60 @@ export default function TasksPage() {
 
             const data = await response.json();
             if (response.ok) {
-                setTasks(tasks.map(t => t._id === id ? data.task : t));
+                // Update the task in the state properly
+                setTasks(tasks.map(t => t._id === id ? { ...t, ...data.task } : t));
             } else {
                 setError(data.error || 'Failed to update task');
             }
         } catch (err) {
             setError('Network error');
         }
+    };
+
+    const editTask = async (formData: any) => {
+        if (!selectedTask) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${apiBaseUrl}/api/tasks/${selectedTask._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                // Update the task in the state
+                setTasks(tasks.map(t =>
+                    t._id === selectedTask._id ? data.task : t
+                ));
+                setShowEditModal(false);
+                setSelectedTask(null);
+            } else {
+                throw new Error(data.error || 'Failed to update task');
+            }
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const openDetailModal = (task: Task) => {
+        setSelectedTask(task);
+        setShowDetailModal(true);
+    };
+
+    const openEditModal = (task: Task) => {
+        setSelectedTask(task);
+        setShowEditModal(true);
+    };
+
+    const closeModals = () => {
+        setShowDetailModal(false);
+        setShowEditModal(false);
+        setSelectedTask(null);
     };
 
     const deleteTask = async (id: string) => {
@@ -575,12 +627,28 @@ export default function TasksPage() {
                                             {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => deleteTask(task._id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Delete
-                                            </button>
+                                            <div className="flex items-center justify-end space-x-2">
+                                                <button
+                                                    onClick={() => openDetailModal(task)}
+                                                    className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                                                >
+                                                    <FiEye className="h-4 w-4" />
+                                                    View
+                                                </button>
+                                                <button
+                                                    onClick={() => openEditModal(task)}
+                                                    className="text-green-600 hover:text-green-900 flex items-center gap-1"
+                                                >
+                                                    <FiEdit className="h-4 w-4" />
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteTask(task._id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -593,6 +661,30 @@ export default function TasksPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Detail Modal */}
+                    <DetailModal
+                        isOpen={showDetailModal}
+                        onClose={closeModals}
+                        onEdit={() => {
+                            setShowDetailModal(false);
+                            setShowEditModal(true);
+                        }}
+                        type="task"
+                        data={selectedTask}
+                    />
+
+                    {/* Edit Modal */}
+                    <EditModal
+                        isOpen={showEditModal}
+                        onClose={closeModals}
+                        onSave={editTask}
+                        type="task"
+                        data={selectedTask}
+                        customers={customers}
+                        invoices={invoices}
+                        tickets={tickets}
+                    />
                 </div>
             </div>
         </div>

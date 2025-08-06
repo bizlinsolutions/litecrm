@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import Modal from '@/components/ui/Modal';
+import DetailModal from '@/components/ui/DetailModal';
+import EditModal from '@/components/ui/EditModal';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiHelpCircle, FiFlag, FiMail } from 'react-icons/fi';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1994';
@@ -52,6 +54,9 @@ export default function TicketsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
@@ -208,13 +213,60 @@ export default function TicketsPage() {
 
             const data = await response.json();
             if (response.ok) {
-                setTickets(tickets.map(t => t._id === id ? data.ticket : t));
+                // Update the ticket in the state properly
+                setTickets(tickets.map(t => t._id === id ? { ...t, ...data.ticket } : t));
             } else {
                 setError(data.error || 'Failed to update ticket');
             }
         } catch (err) {
             setError('Network error');
         }
+    };
+
+    const editTicket = async (formData: any) => {
+        if (!selectedTicket) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${apiBaseUrl}/api/tickets/${selectedTicket._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                // Update the ticket in the state
+                setTickets(tickets.map(t =>
+                    t._id === selectedTicket._id ? data.ticket : t
+                ));
+                setShowEditModal(false);
+                setSelectedTicket(null);
+            } else {
+                throw new Error(data.error || 'Failed to update ticket');
+            }
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const openDetailModal = (ticket: Ticket) => {
+        setSelectedTicket(ticket);
+        setShowDetailModal(true);
+    };
+
+    const openEditModal = (ticket: Ticket) => {
+        setSelectedTicket(ticket);
+        setShowEditModal(true);
+    };
+
+    const closeModals = () => {
+        setShowDetailModal(false);
+        setShowEditModal(false);
+        setSelectedTicket(null);
     };
 
     const deleteTicket = async (id: string) => {
@@ -524,12 +576,28 @@ export default function TicketsPage() {
                                             <div className="text-xs text-gray-400">by {ticket.createdBy.name}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => deleteTicket(ticket._id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Delete
-                                            </button>
+                                            <div className="flex items-center justify-end space-x-2">
+                                                <button
+                                                    onClick={() => openDetailModal(ticket)}
+                                                    className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                                                >
+                                                    <FiEye className="h-4 w-4" />
+                                                    View
+                                                </button>
+                                                <button
+                                                    onClick={() => openEditModal(ticket)}
+                                                    className="text-green-600 hover:text-green-900 flex items-center gap-1"
+                                                >
+                                                    <FiEdit className="h-4 w-4" />
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteTicket(ticket._id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -542,6 +610,28 @@ export default function TicketsPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Detail Modal */}
+                    <DetailModal
+                        isOpen={showDetailModal}
+                        onClose={closeModals}
+                        onEdit={() => {
+                            setShowDetailModal(false);
+                            setShowEditModal(true);
+                        }}
+                        type="ticket"
+                        data={selectedTicket}
+                    />
+
+                    {/* Edit Modal */}
+                    <EditModal
+                        isOpen={showEditModal}
+                        onClose={closeModals}
+                        onSave={editTicket}
+                        type="ticket"
+                        data={selectedTicket}
+                        customers={customers}
+                    />
                 </div>
             </div>
         </div>
